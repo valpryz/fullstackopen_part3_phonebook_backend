@@ -41,24 +41,23 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.post('/api/persons', (req, res) => {
   const body = req.body
-  let id = Math.ceil( Math.random() * 10000)
 
   if(!body.name || !body.number) {
     return res.status(400).json({error: "name or number is missing"})
   }
 
-  if(persons.some(person => person.name.toLowerCase() === body.name.toLowerCase())){
-    return res.status(400).json({error: "name must be unique"})
-  }
+  // if(persons.some(person => person.name.toLowerCase() === body.name.toLowerCase())){
+  //   return res.status(400).json({error: "name must be unique"})
+  // }
 
-  let person = {
-    id: String(id),
+  const person = new Person({
     name: body.name,
     number: body.number
-  }
+  })
   
-  persons = persons.concat(person)
-  res.json(person)
+  person.save()
+    .then(savedPerson => res.json(savedPerson))
+  
 })
 
 const PORT = process.env.PORT
