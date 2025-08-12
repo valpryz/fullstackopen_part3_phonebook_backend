@@ -47,10 +47,6 @@ app.post('/api/persons', (req, res) => {
     return res.status(400).json({error: "name or number is missing"})
   }
 
-  // if(persons.some(person => person.name.toLowerCase() === body.name.toLowerCase())){
-  //   return res.status(400).json({error: "name must be unique"})
-  // }
-
   const person = new Person({
     name: body.name,
     number: body.number
@@ -61,13 +57,36 @@ app.post('/api/persons', (req, res) => {
   
 })
 
+app.put('/api/persons/:id', (req, res, next) => {
+  const body = req.body
+
+  if(!body.name || !body.number) {
+    return res.status(400).json({error: "name or number is missing"})
+  }
+
+  Person.findById(req.params.id)
+    .then(person => {
+
+      if(!person){
+        return res.status(404).end()
+      }
+
+      person.name = body.name
+      person.number = body.number
+
+      return person.save()
+              .then(updatedPerson => res.json(updatedPerson))
+    })
+    .catch(error => next(error))
+})
+
 const errorHandler = (error, req, res, next) => {
   console.log(error.message)
 
   if (error.name === 'CastError') {
     return res.status(400).send({ error: 'malformatted id' })
   } 
-
+  
   next(error)
 }
 
