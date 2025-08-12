@@ -17,9 +17,10 @@ app.get('/info', (req, res) => {
   res.send(`<p>Phonebook has info for ${persons.length} people</p><p>${new Date()}</p>`)
 })
 
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (req, res, next) => {
   Person.find({})
     .then(persons => res.json(persons))  
+    .catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (req, res) => {
@@ -59,6 +60,18 @@ app.post('/api/persons', (req, res) => {
     .then(savedPerson => res.json(savedPerson))
   
 })
+
+const errorHandler = (error, req, res, next) => {
+  console.log(error.message)
+
+  if (error.name === 'CastError') {
+    return res.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
