@@ -52,17 +52,13 @@ app.post('/api/persons', (req, res, next) => {
     number: body.number
   })
   
-  person.save()
+  return person.save()
     .then(savedPerson => res.json(savedPerson))
     .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
   const body = req.body
-
-  if(!body.name || !body.number) {
-    return res.status(400).json({error: "name or number is missing"})
-  }
 
   Person.findById(req.params.id)
     .then(person => {
@@ -71,10 +67,9 @@ app.put('/api/persons/:id', (req, res, next) => {
         return res.status(404).end()
       }
 
-      person.name = body.name
       person.number = body.number
 
-      person.save()
+      return person.save()
               .then(updatedPerson => res.json(updatedPerson))
     })
     .catch(error => next(error))
